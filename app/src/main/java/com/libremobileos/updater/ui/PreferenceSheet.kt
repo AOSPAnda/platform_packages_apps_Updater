@@ -13,12 +13,12 @@ import android.widget.Spinner
 import android.widget.Switch
 import android.widget.Toast
 import androidx.preference.PreferenceManager
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.libremobileos.updater.R
 import com.libremobileos.updater.UpdatesCheckReceiver
 import com.libremobileos.updater.controller.UpdaterService
 import com.libremobileos.updater.misc.Constants
 import com.libremobileos.updater.misc.Utils
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 @SuppressLint("UseSwitchCompatOrMaterialCode")
 class PreferenceSheet : BottomSheetDialogFragment() {
@@ -26,7 +26,7 @@ class PreferenceSheet : BottomSheetDialogFragment() {
     private var prefs: SharedPreferences? = null
 
     private var mUpdaterService: UpdaterService? = null
-    
+
     private lateinit var preferencesAbPerfMode: Switch
     private lateinit var preferencesAutoDeleteUpdates: Switch
     private lateinit var preferencesMeteredNetworkWarning: Switch
@@ -49,9 +49,11 @@ class PreferenceSheet : BottomSheetDialogFragment() {
         with(view) {
             preferencesAbPerfMode = requireViewById(R.id.preferences_ab_perf_mode)
             preferencesAutoDeleteUpdates = requireViewById(R.id.preferences_auto_delete_updates)
-            preferencesMeteredNetworkWarning = requireViewById(R.id.preferences_metered_network_warning)
+            preferencesMeteredNetworkWarning =
+                requireViewById(R.id.preferences_metered_network_warning)
             preferencesUpdateRecovery = requireViewById(R.id.preferences_update_recovery)
-            preferencesAutoUpdatesCheckInterval = requireViewById(R.id.preferences_auto_updates_check_interval)
+            preferencesAutoUpdatesCheckInterval =
+                requireViewById(R.id.preferences_auto_updates_check_interval)
         }
 
         if (!Utils.isABDevice() || Utils.isABPerfModeForceEnabled(requireContext())) {
@@ -67,8 +69,10 @@ class PreferenceSheet : BottomSheetDialogFragment() {
         preferencesAutoDeleteUpdates.isChecked =
             prefs!!.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, true)
         preferencesMeteredNetworkWarning.isChecked =
-            prefs!!.getBoolean(Constants.PREF_METERED_NETWORK_WARNING,
-                prefs!!.getBoolean(Constants.PREF_MOBILE_DATA_WARNING, true))
+            prefs!!.getBoolean(
+                Constants.PREF_METERED_NETWORK_WARNING,
+                prefs!!.getBoolean(Constants.PREF_MOBILE_DATA_WARNING, true)
+            )
         preferencesAbPerfMode.isChecked =
             prefs!!.getBoolean(Constants.PREF_AB_PERF_MODE, true)
 
@@ -108,7 +112,10 @@ class PreferenceSheet : BottomSheetDialogFragment() {
                 preferencesAutoUpdatesCheckInterval.selectedItemPosition
             )
             .putBoolean(Constants.PREF_AUTO_DELETE_UPDATES, preferencesAutoDeleteUpdates.isChecked)
-            .putBoolean(Constants.PREF_METERED_NETWORK_WARNING, preferencesMeteredNetworkWarning.isChecked)
+            .putBoolean(
+                Constants.PREF_METERED_NETWORK_WARNING,
+                preferencesMeteredNetworkWarning.isChecked
+            )
             .putBoolean(Constants.PREF_AB_PERF_MODE, preferencesAbPerfMode.isChecked)
             .apply()
 

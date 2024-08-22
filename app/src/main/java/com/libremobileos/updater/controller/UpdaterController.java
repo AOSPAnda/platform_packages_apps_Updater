@@ -62,7 +62,7 @@ public class UpdaterController {
 
         Utils.cleanupDownloadsDir(context);
 
-        for (Update update : mUpdatesDbHelper.getUpdates()) {
+        for (Update update : mUpdatesDbHelper.getUpdates(null, null)) {
             addUpdate(update, false);
         }
     }
@@ -312,7 +312,7 @@ public class UpdaterController {
             DownloadEntry entry = mDownloads.get(updateInfo.getDownloadId());
             if (entry != null) {
                 Update updateAdded = entry.mUpdate;
-                updateAdded.setAvailableOnline(availableOnline && updateAdded.getAvailableOnline());
+                updateAdded.setAvailableOnline(availableOnline && updateAdded.isAvailableOnline());
                 updateAdded.setDownloadUrl(updateInfo.getDownloadUrl());
             }
             return false;
@@ -457,7 +457,7 @@ public class UpdaterController {
             update.setPersistentStatus(UpdateStatus.Persistent.UNKNOWN);
             deleteUpdateAsync(update);
 
-            if (!update.getAvailableOnline()) {
+            if (!update.isAvailableOnline()) {
                 Log.d(TAG, "Download no longer available online, removing");
                 mDownloads.remove(downloadId);
                 notifyUpdateDelete(downloadId);

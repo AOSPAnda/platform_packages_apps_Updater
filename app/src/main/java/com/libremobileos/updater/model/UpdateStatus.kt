@@ -2,9 +2,9 @@
  * SPDX-FileCopyrightText: 2017 The LineageOS Project
  * SPDX-License-Identifier: Apache-2.0
  */
-package com.libremobileos.updater.model;
+package com.libremobileos.updater.model
 
-public enum UpdateStatus {
+enum class UpdateStatus {
     UNKNOWN,
     STARTING,
     DOWNLOADING,
@@ -20,9 +20,9 @@ public enum UpdateStatus {
     INSTALLATION_CANCELLED,
     INSTALLATION_SUSPENDED;
 
-    public static final class Persistent {
-        public static final int UNKNOWN = 0;
-        public static final int INCOMPLETE = 1;
-        public static final int VERIFIED = 2;
+    object Persistent {
+        const val UNKNOWN = 0
+        const val INCOMPLETE = 1
+        const val VERIFIED = 2
     }
 }

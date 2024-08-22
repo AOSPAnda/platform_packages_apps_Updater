@@ -58,7 +58,7 @@ class UpdateView : LinearLayout {
     private var mDownloadId: String? = null
     private lateinit var mSelectedDownload: String
     private var mUpdaterController: UpdaterController? = null
-    private var mActivity: UpdatesListActivity? = null
+    private var mActivity: UpdatesActivity? = null
     private var infoDialog: AlertDialog? = null
 
     private var actionListener: onActionChanged = null
@@ -382,7 +382,7 @@ class UpdateView : LinearLayout {
                     (
                             update.installProgress / 100f).toDouble()
                 )
-                actionProgressStats.setText(if (notAB) R.string.dialog_prepare_zip_message else if (update.finalizing) R.string.finalizing_package else R.string.preparing_ota_first_boot)
+                actionProgressStats.setText(if (notAB) R.string.dialog_prepare_zip_message else if (update.isFinalizing) R.string.finalizing_package else R.string.preparing_ota_first_boot)
                 actionProgressBar.isIndeterminate = false
                 actionProgressBar.progress = update.installProgress
                 actionProgressText.text = percentage
@@ -644,7 +644,7 @@ class UpdateView : LinearLayout {
         popupMenu.inflate(R.menu.menu_action_mode)
         val menu = popupMenu.menu as MenuBuilder
         menu.findItem(R.id.menu_delete_action).isVisible = canDelete
-        menu.findItem(R.id.menu_copy_url).isVisible = update.availableOnline
+        menu.findItem(R.id.menu_copy_url).isVisible = update.isAvailableOnline
         menu.findItem(R.id.menu_export_update).isVisible =
             update.persistentStatus == UpdateStatus.Persistent.VERIFIED
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->

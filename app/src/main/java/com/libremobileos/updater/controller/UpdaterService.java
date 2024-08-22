@@ -469,7 +469,7 @@ public class UpdaterService extends Service {
         mNotificationStyle.setSummaryText(percent);
         boolean notAB = UpdateInstaller.isInstalling();
         mNotificationStyle.bigText(notAB ? getString(R.string.dialog_prepare_zip_message) :
-                update.getFinalizing() ?
+                update.isFinalizing() ?
                         getString(R.string.finalizing_package) :
                         getString(R.string.preparing_ota_first_boot));
         mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
