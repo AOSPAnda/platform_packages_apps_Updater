@@ -1,7 +1,7 @@
-import java.util.Properties
 import org.lineageos.generatebp.GenerateBpPlugin
 import org.lineageos.generatebp.GenerateBpPluginExtension
 import org.lineageos.generatebp.models.Module
+import java.util.Properties
 
 plugins {
     id("com.android.application")
@@ -41,23 +41,6 @@ android {
         versionName = "1.0"
     }
 
-    signingConfigs {
-        create("release") {
-            (keystoreProperties["keyAlias"] as String?)?.let {
-                keyAlias = it
-            }
-            (keystoreProperties["keyPassword"] as String?)?.let {
-                keyPassword = it
-            }
-            (keystoreProperties["storeFile"] as String?)?.let {
-                storeFile = file(it)
-            }
-            (keystoreProperties["storePassword"] as String?)?.let {
-                storePassword = it
-            }
-        }
-    }
-
     buildTypes {
         getByName("release") {
             // Includes the default ProGuard rules files.
@@ -67,10 +50,6 @@ android {
                     "proguard-rules.pro"
                 )
             )
-            signingConfig = signingConfigs.getByName("release")
-        }
-        getByName("debug") {
-            signingConfig = signingConfigs.getByName("release")
         }
     }
 
@@ -89,15 +68,15 @@ dependencies {
 
     implementation(project(":SettingsLib"))
 
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("androidx.cardview:cardview:1.0.0")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.4")
     implementation("androidx.localbroadcastmanager:localbroadcastmanager:1.1.0")
-    implementation("androidx.preference:preference:1.2.0")
-    implementation("androidx.recyclerview:recyclerview:1.2.1")
+    implementation("androidx.preference:preference-ktx:1.2.1")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.swiperefreshlayout:swiperefreshlayout:1.1.0")
-    implementation("com.google.android.material:material:1.9.0-alpha01")
+    implementation("com.google.android.material:material:1.12.0")
 }
 
 configure<GenerateBpPluginExtension> {

@@ -29,7 +29,6 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.appcompat.view.menu.MenuBuilder
 import androidx.appcompat.view.menu.MenuPopupHelper
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.content.ContextCompat.startActivity
 import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import com.libremobileos.updater.controller.UpdaterController
@@ -50,7 +49,6 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
-
 
 typealias onActionChanged = ((action: UpdateView.Action?) -> Unit)?
 
@@ -97,9 +95,18 @@ class UpdateView : LinearLayout {
 
     constructor(context: Context?, attrs: AttributeSet?) : super(context, attrs)
 
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(context, attrs, defStyleAttr)
+    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int) : super(
+        context,
+        attrs,
+        defStyleAttr
+    )
 
-    constructor(context: Context?, attrs: AttributeSet?, defStyleAttr: Int, defStyleRes: Int) : super(context, attrs, defStyleAttr, defStyleRes)
+    constructor(
+        context: Context?,
+        attrs: AttributeSet?,
+        defStyleAttr: Int,
+        defStyleRes: Int
+    ) : super(context, attrs, defStyleAttr, defStyleRes)
 
     init {
         inflate(context, R.layout.update_layout, this)
@@ -124,7 +131,10 @@ class UpdateView : LinearLayout {
 
     fun unleashTheBunny(resID: Int) {
         requireViewById<TextView>(R.id.easterBunny).setText(resID)
-        Handler().postDelayed({ requireViewById<TextView>(R.id.easterBunny).setText(R.string.maybe_later) }, 2000)
+        Handler().postDelayed(
+            { requireViewById<TextView>(R.id.easterBunny).setText(R.string.maybe_later) },
+            2000
+        )
     }
 
     fun lateInit() {
@@ -168,10 +178,21 @@ class UpdateView : LinearLayout {
     }
 
     private fun createDate(timestamp: Long): CharSequence? {
-        return SimpleDateFormat("d MMM yy", Locale.getDefault()).format(Timestamp(timestamp).time * 1000L)
+        return SimpleDateFormat(
+            "d MMM yy",
+            Locale.getDefault()
+        ).format(Timestamp(timestamp).time * 1000L)
     }
 
-    fun setupControlViews(actionCheck: RelativeLayout, actionStart: RelativeLayout, actionProgress: RelativeLayout, actionOptions: LinearLayout, actionInstall: RelativeLayout, actionReboot: RelativeLayout, actionDelete: RelativeLayout) {
+    fun setupControlViews(
+        actionCheck: RelativeLayout,
+        actionStart: RelativeLayout,
+        actionProgress: RelativeLayout,
+        actionOptions: LinearLayout,
+        actionInstall: RelativeLayout,
+        actionReboot: RelativeLayout,
+        actionDelete: RelativeLayout
+    ) {
         this.actionCheck = actionCheck
         this.actionCheckButton = actionCheck.requireViewById(R.id.actionCheckButton)
         this.actionStart = actionStart
@@ -244,8 +265,10 @@ class UpdateView : LinearLayout {
             if (canInstall) {
                 getInstallDialog(mDownloadId!!)!!.show()
             } else {
-                mActivity!!.showSnackbar(R.string.snack_update_not_installable,
-                    Snackbar.LENGTH_LONG)
+                mActivity!!.showSnackbar(
+                    R.string.snack_update_not_installable,
+                    Snackbar.LENGTH_LONG
+                )
             }
         }
         actionCancel.setOnClickListener {
@@ -325,53 +348,70 @@ class UpdateView : LinearLayout {
                 actionStart.visibility = GONE
                 actionProgress.visibility = VISIBLE
                 canDelete = true
-                val downloaded = Formatter.formatShortFileSize(mActivity,
-                        update.file.length())
+                val downloaded = Formatter.formatShortFileSize(
+                    mActivity,
+                    update.file.length()
+                )
                 val total = Formatter.formatShortFileSize(mActivity, update.fileSize)
-                val percentage = NumberFormat.getPercentInstance().format((
-                        update.progress / 100f).toDouble())
+                val percentage = NumberFormat.getPercentInstance().format(
+                    (
+                            update.progress / 100f).toDouble()
+                )
                 val eta = update.eta
                 if (eta > 0) {
                     val etaString: CharSequence = StringGenerator.formatETA(mActivity, eta * 1000)
                     actionProgressStats.text = mActivity!!.getString(
-                            R.string.list_download_progress_eta_newer, downloaded, total, etaString)
+                        R.string.list_download_progress_eta_newer, downloaded, total, etaString
+                    )
                 } else {
                     actionProgressStats.text = mActivity!!.getString(
-                            R.string.list_download_progress_newer, downloaded, total)
+                        R.string.list_download_progress_newer, downloaded, total
+                    )
                 }
                 setButtonAction(actionProgressPause, Action.PAUSE, true)
                 actionProgressBar.isIndeterminate = update.status == UpdateStatus.STARTING
                 actionProgressBar.progress = update.progress
-                actionProgressText.text = "$percentage"
+                actionProgressText.text = percentage
             }
+
             mUpdaterController!!.isInstallingUpdate(downloadId) -> {
                 actionProgress.visibility = VISIBLE
                 setButtonAction(actionProgressPause, Action.PAUSE, true)
                 val notAB = !mUpdaterController!!.isInstallingABUpdate
-                val percentage = NumberFormat.getPercentInstance().format((
-                        update.installProgress / 100f).toDouble())
+                val percentage = NumberFormat.getPercentInstance().format(
+                    (
+                            update.installProgress / 100f).toDouble()
+                )
                 actionProgressStats.setText(if (notAB) R.string.dialog_prepare_zip_message else if (update.finalizing) R.string.finalizing_package else R.string.preparing_ota_first_boot)
                 actionProgressBar.isIndeterminate = false
                 actionProgressBar.progress = update.installProgress
-                actionProgressText.text = "$percentage"
+                actionProgressText.text = percentage
             }
+
             mUpdaterController!!.isVerifyingUpdate(downloadId) -> {
                 actionProgress.visibility = VISIBLE
                 actionProgressStats.setText(R.string.list_verifying_update)
                 actionProgressBar.isIndeterminate = true
                 actionProgressPause.isEnabled = false
             }
+
             else -> {
                 actionProgress.visibility = GONE
                 canDelete = true
                 setButtonAction(actionResume, Action.RESUME, !isBusy)
-                val downloaded = StringGenerator.bytesToMegabytes(mActivity,
-                        update.file.length())
+                val downloaded = StringGenerator.bytesToMegabytes(
+                    mActivity,
+                    update.file.length()
+                )
                 val total = Formatter.formatShortFileSize(mActivity, update.fileSize)
-                val percentage = NumberFormat.getPercentInstance().format((
-                        update.progress / 100f).toDouble())
-                actionProgressStats.text = mActivity!!.getString(R.string.list_download_progress_newer,
-                        downloaded, total)
+                val percentage = NumberFormat.getPercentInstance().format(
+                    (
+                            update.progress / 100f).toDouble()
+                )
+                actionProgressStats.text = mActivity!!.getString(
+                    R.string.list_download_progress_newer,
+                    downloaded, total
+                )
                 actionProgressText.text = "$percentage"
                 actionProgressBar.isIndeterminate = false
                 actionProgressBar.progress = update.progress
@@ -428,21 +468,22 @@ class UpdateView : LinearLayout {
         val checkbox = checkboxView.requireViewById<View>(R.id.checkbox) as CheckBox
         checkbox.setText(R.string.checkbox_metered_network_warning)
         AlertDialog.Builder(mActivity!!)
-                .setTitle(R.string.update_over_metered_network_title)
-                .setMessage(R.string.update_over_metered_network_message)
-                .setView(checkboxView)
-                .setPositiveButton(R.string.action_download
-                ) { dialog: DialogInterface?, which: Int ->
-                    if (checkbox.isChecked) {
-                        preferences.edit()
-                                .putBoolean(Constants.PREF_METERED_NETWORK_WARNING, false)
-                                .apply()
-                        mActivity!!.supportInvalidateOptionsMenu()
-                    }
-                    mUpdaterController!!.startDownload(downloadId)
+            .setTitle(R.string.update_over_metered_network_title)
+            .setMessage(R.string.update_over_metered_network_message)
+            .setView(checkboxView)
+            .setPositiveButton(
+                R.string.action_download
+            ) { dialog: DialogInterface?, which: Int ->
+                if (checkbox.isChecked) {
+                    preferences.edit()
+                        .putBoolean(Constants.PREF_METERED_NETWORK_WARNING, false)
+                        .apply()
+                    mActivity!!.supportInvalidateOptionsMenu()
                 }
-                .setNegativeButton(android.R.string.cancel, null)
-                .show()
+                mUpdaterController!!.startDownload(downloadId)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
+            .show()
     }
 
     private fun setButtonAction(target: View, action: Action, enabled: Boolean) {
@@ -452,29 +493,36 @@ class UpdateView : LinearLayout {
             Action.DOWNLOAD -> {
                 actionStart.visibility = VISIBLE
             }
+
             Action.RESUME -> {
                 actionOptions.visibility = VISIBLE
             }
+
             Action.INSTALL -> {
                 actionInstall.visibility = VISIBLE
             }
+
             Action.INFO -> {
                 //button!!.setText(R.string.action_info)
                 //button.isEnabled = enabled
                 //clickListener = if (enabled) OnClickListener { view: View? -> showInfoDialog() } else null
             }
+
             Action.DELETE -> {
 
             }
+
             Action.CANCEL_INSTALLATION -> {
                 actionOptions.visibility = VISIBLE
                 //button!!.setText(R.string.action_cancel)
                 //button.isEnabled = enabled
                 //clickListener = if (enabled) OnClickListener { view: View? -> cancelInstallationDialog.show() } else null
             }
+
             Action.REBOOT -> {
 
             }
+
             Action.PAUSE -> {
                 actionCheck.visibility = GONE
                 actionStart.visibility = GONE
@@ -490,20 +538,23 @@ class UpdateView : LinearLayout {
 
     private fun getDeleteDialog(downloadId: String): AlertDialog.Builder {
         return AlertDialog.Builder(mActivity!!)
-                .setTitle(R.string.confirm_delete_dialog_title)
-                .setMessage(R.string.confirm_delete_dialog_message)
-                .setPositiveButton(android.R.string.ok
-                ) { dialog: DialogInterface?, which: Int ->
-                    mUpdaterController!!.pauseDownload(downloadId)
-                    mUpdaterController!!.deleteUpdate(downloadId)
-                    actionOptions.visibility = GONE
-                    actionStart.visibility = VISIBLE
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+            .setTitle(R.string.confirm_delete_dialog_title)
+            .setMessage(R.string.confirm_delete_dialog_message)
+            .setPositiveButton(
+                android.R.string.ok
+            ) { dialog: DialogInterface?, which: Int ->
+                mUpdaterController!!.pauseDownload(downloadId)
+                mUpdaterController!!.deleteUpdate(downloadId)
+                actionOptions.visibility = GONE
+                actionStart.visibility = VISIBLE
+            }
+            .setNegativeButton(android.R.string.cancel, null)
     }
 
-    private fun getLongClickListener(update: UpdateInfo,
-                                     canDelete: Boolean, anchor: View?): OnLongClickListener {
+    private fun getLongClickListener(
+        update: UpdateInfo,
+        canDelete: Boolean, anchor: View?
+    ): OnLongClickListener {
         return OnLongClickListener { view: View? ->
             startActionMode(update, canDelete, anchor)
             true
@@ -513,19 +564,21 @@ class UpdateView : LinearLayout {
     private fun getInstallDialog(downloadId: String): AlertDialog.Builder? {
         if (!isBatteryLevelOk) {
             val resources = mActivity!!.resources
-            val message = resources.getString(R.string.dialog_battery_low_message_pct,
-                    resources.getInteger(R.integer.battery_ok_percentage_discharging),
-                    resources.getInteger(R.integer.battery_ok_percentage_charging))
+            val message = resources.getString(
+                R.string.dialog_battery_low_message_pct,
+                resources.getInteger(R.integer.battery_ok_percentage_discharging),
+                resources.getInteger(R.integer.battery_ok_percentage_charging)
+            )
             return AlertDialog.Builder(mActivity!!)
-                    .setTitle(R.string.dialog_battery_low_title)
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok, null)
+                .setTitle(R.string.dialog_battery_low_title)
+                .setMessage(message)
+                .setPositiveButton(android.R.string.ok, null)
         }
         if (isScratchMounted) {
             return AlertDialog.Builder(mActivity!!)
-                    .setTitle(R.string.dialog_scratch_mounted_title)
-                    .setMessage(R.string.dialog_scratch_mounted_message)
-                    .setPositiveButton(android.R.string.ok, null);
+                .setTitle(R.string.dialog_scratch_mounted_title)
+                .setMessage(R.string.dialog_scratch_mounted_message)
+                .setPositiveButton(android.R.string.ok, null)
         }
         val update = mUpdaterController!!.getUpdate(downloadId)
         val resId: Int
@@ -539,62 +592,78 @@ class UpdateView : LinearLayout {
             Log.e(TAG, "Could not determine the type of the update")
             return null
         }
-        val buildDate = StringGenerator.getDateLocalizedUTC(mActivity,
-                DateFormat.MEDIUM, update.timestamp)
-        val buildInfoText = mActivity!!.getString(R.string.list_build_version_date,
-                BuildInfoUtils.getBuildVersion(), buildDate)
+        val buildDate = StringGenerator.getDateLocalizedUTC(
+            mActivity,
+            DateFormat.MEDIUM, update.timestamp
+        )
+        val buildInfoText = mActivity!!.getString(
+            R.string.list_build_version_date,
+            BuildInfoUtils.getBuildVersion(), buildDate
+        )
         return AlertDialog.Builder(mActivity!!)
-                .setTitle(R.string.apply_update_dialog_title)
-                .setMessage(mActivity!!.getString(resId, buildInfoText,
-                        mActivity!!.getString(android.R.string.ok)))
-                .setPositiveButton(android.R.string.ok
-                ) { _: DialogInterface?, _: Int ->
-                    hideEverythingBut(actionProgress)
-                    actionProgress.visibility = VISIBLE
-                    Utils.triggerUpdate(mActivity, downloadId)
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+            .setTitle(R.string.apply_update_dialog_title)
+            .setMessage(
+                mActivity!!.getString(
+                    resId, buildInfoText,
+                    mActivity!!.getString(android.R.string.ok)
+                )
+            )
+            .setPositiveButton(
+                android.R.string.ok
+            ) { _: DialogInterface?, _: Int ->
+                hideEverythingBut(actionProgress)
+                actionProgress.visibility = VISIBLE
+                Utils.triggerUpdate(mActivity, downloadId)
+            }
+            .setNegativeButton(android.R.string.cancel, null)
     }
 
     private val cancelInstallationDialog: AlertDialog.Builder
         get() = AlertDialog.Builder(mActivity!!)
-                .setMessage(R.string.cancel_installation_dialog_message)
-                .setPositiveButton(android.R.string.ok
-                ) { dialog: DialogInterface?, which: Int ->
-                    val intent = Intent(mActivity, UpdaterService::class.java)
-                    intent.action = UpdaterService.ACTION_INSTALL_STOP
-                    intent.putExtra(UpdaterService.EXTRA_DOWNLOAD_ID, mDownloadId);
-                    mActivity!!.startService(intent)
-                    hideEverythingBut(actionInstall)
-                    actionInstall.visibility = VISIBLE
-                }
-                .setNegativeButton(android.R.string.cancel, null)
+            .setMessage(R.string.cancel_installation_dialog_message)
+            .setPositiveButton(
+                android.R.string.ok
+            ) { dialog: DialogInterface?, which: Int ->
+                val intent = Intent(mActivity, UpdaterService::class.java)
+                intent.action = UpdaterService.ACTION_INSTALL_STOP
+                intent.putExtra(UpdaterService.EXTRA_DOWNLOAD_ID, mDownloadId)
+                mActivity!!.startService(intent)
+                hideEverythingBut(actionInstall)
+                actionInstall.visibility = VISIBLE
+            }
+            .setNegativeButton(android.R.string.cancel, null)
 
     @SuppressLint("RestrictedApi")
     private fun startActionMode(update: UpdateInfo, canDelete: Boolean, anchor: View?) {
         mSelectedDownload = update.downloadId
-        val wrapper = ContextThemeWrapper(mActivity,
-                R.style.Theme_Base_PopupMenuOverlapAnchor)
-        val popupMenu = PopupMenu(wrapper, anchor!!, Gravity.NO_GRAVITY,
-                R.attr.actionOverflowMenuStyle, 0)
+        val wrapper = ContextThemeWrapper(
+            mActivity,
+            R.style.Theme_Base_PopupMenuOverlapAnchor
+        )
+        val popupMenu = PopupMenu(wrapper, anchor!!, Gravity.NO_GRAVITY)
         popupMenu.inflate(R.menu.menu_action_mode)
         val menu = popupMenu.menu as MenuBuilder
         menu.findItem(R.id.menu_delete_action).isVisible = canDelete
         menu.findItem(R.id.menu_copy_url).isVisible = update.availableOnline
-        menu.findItem(R.id.menu_export_update).isVisible = update.persistentStatus == UpdateStatus.Persistent.VERIFIED
+        menu.findItem(R.id.menu_export_update).isVisible =
+            update.persistentStatus == UpdateStatus.Persistent.VERIFIED
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.menu_delete_action -> {
                     getDeleteDialog(update.downloadId).show()
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.menu_copy_url -> {
-                    Utils.addToClipboard(mActivity,
-                            mActivity!!.getString(R.string.label_download_url),
-                            update.downloadUrl,
-                            mActivity!!.getString(R.string.toast_download_url_copied))
+                    Utils.addToClipboard(
+                        mActivity,
+                        mActivity!!.getString(R.string.label_download_url),
+                        update.downloadUrl,
+                        mActivity!!.getString(R.string.toast_download_url_copied)
+                    )
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.menu_export_update -> {
                     exportUpdate(update)
                     return@setOnMenuItemClickListener true
@@ -619,34 +688,41 @@ class UpdateView : LinearLayout {
     }
 
     private fun showInfoDialog() {
-        val messageString = String.format(StringGenerator.getCurrentLocale(mActivity),
-                mActivity!!.getString(R.string.blocked_update_dialog_message),
-                Utils.getUpgradeBlockedURL(mActivity))
+        val messageString = String.format(
+            StringGenerator.getCurrentLocale(mActivity),
+            mActivity!!.getString(R.string.blocked_update_dialog_message),
+            Utils.getUpgradeBlockedURL(mActivity)
+        )
         val message = SpannableString(messageString)
         Linkify.addLinks(message, Linkify.WEB_URLS)
         if (infoDialog != null) {
             infoDialog!!.dismiss()
         }
         infoDialog = AlertDialog.Builder(mActivity!!)
-                .setTitle(R.string.blocked_update_dialog_title)
-                .setPositiveButton(android.R.string.ok, null)
-                .setMessage(message)
-                .show()
+            .setTitle(R.string.blocked_update_dialog_title)
+            .setPositiveButton(android.R.string.ok, null)
+            .setMessage(message)
+            .show()
         val textView = infoDialog?.requireViewById<View>(android.R.id.message) as TextView?
         textView!!.movementMethod = LinkMovementMethod.getInstance()
     }
 
     private val isBatteryLevelOk: Boolean
         get() {
-            val intent = mActivity!!.registerReceiver(null,
-                    IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            val intent = mActivity!!.registerReceiver(
+                null,
+                IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            )
             if (!intent!!.getBooleanExtra(BatteryManager.EXTRA_PRESENT, false)) {
                 return true
             }
             val percent = (100f * intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 100) /
                     intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)).roundToInt()
             val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
-            val required = if (plugged and BATTERY_PLUGGED_ANY != 0) mActivity!!.resources.getInteger(R.integer.battery_ok_percentage_charging) else mActivity!!.resources.getInteger(R.integer.battery_ok_percentage_discharging)
+            val required =
+                if (plugged and BATTERY_PLUGGED_ANY != 0) mActivity!!.resources.getInteger(R.integer.battery_ok_percentage_charging) else mActivity!!.resources.getInteger(
+                    R.integer.battery_ok_percentage_discharging
+                )
             return percent >= required
         }
 

@@ -10,7 +10,6 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -21,15 +20,16 @@ import android.widget.Toast;
 
 import androidx.preference.PreferenceManager;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import com.libremobileos.updater.R;
 import com.libremobileos.updater.UpdatesDbHelper;
 import com.libremobileos.updater.controller.UpdaterService;
 import com.libremobileos.updater.model.Update;
 import com.libremobileos.updater.model.UpdateBaseInfo;
 import com.libremobileos.updater.model.UpdateInfo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -105,9 +105,9 @@ public class Utils {
     public static boolean canInstall(UpdateBaseInfo update) {
         return (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_DOWNGRADING, false) ||
                 update.getTimestamp() > SystemProperties.getLong(Constants.PROP_BUILD_DATE, 0)) &&
-               (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_MAJOR_UPDATE, false) ||
-                update.getVersion().split("\\.")[0].equalsIgnoreCase(
-                        SystemProperties.get(Constants.PROP_BUILD_VERSION).split("\\.")[0]));
+                (SystemProperties.getBoolean(Constants.PROP_UPDATER_ALLOW_MAJOR_UPDATE, false) ||
+                        update.getVersion().split("\\.")[0].equalsIgnoreCase(
+                                SystemProperties.get(Constants.PROP_BUILD_VERSION).split("\\.")[0]));
     }
 
     public static List<UpdateInfo> parseJson(File file, boolean compatibleOnly)
@@ -116,7 +116,7 @@ public class Utils {
 
         StringBuilder json = new StringBuilder();
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            for (String line; (line = br.readLine()) != null;) {
+            for (String line; (line = br.readLine()) != null; ) {
                 json.append(line);
             }
         }
@@ -224,7 +224,7 @@ public class Utils {
     /**
      * Get the offset to the compressed data of a file inside the given zip
      *
-     * @param zipFile input zip file
+     * @param zipFile   input zip file
      * @param entryPath full path of the entry
      * @return the offset of the compressed, or -1 if not found
      * @throws IllegalArgumentException if the given entry is not found
@@ -267,7 +267,6 @@ public class Utils {
      * Cleanup the download directory, which is assumed to be a privileged location
      * the user can't access and that might have stale files. This can happen if
      * the data of the application are wiped.
-     *
      */
     public static void cleanupDownloadsDir(Context context) {
         File downloadPath = getDownloadPath(context);
@@ -279,8 +278,7 @@ public class Utils {
         long prevTimestamp = preferences.getLong(Constants.PREF_INSTALL_OLD_TIMESTAMP, 0);
         String lastUpdatePath = preferences.getString(Constants.PREF_INSTALL_PACKAGE_PATH, null);
         boolean reinstalling = preferences.getBoolean(Constants.PREF_INSTALL_AGAIN, false);
-        boolean deleteUpdates = isDeleteUpdatesForceEnabled(context) ? true
-                : preferences.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, true);
+        boolean deleteUpdates = isDeleteUpdatesForceEnabled(context) || preferences.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, true);
         if ((buildTimestamp != prevTimestamp || reinstalling) && deleteUpdates &&
                 lastUpdatePath != null) {
             File lastUpdate = new File(lastUpdatePath);
@@ -358,10 +356,6 @@ public class Utils {
         boolean isAB = isABUpdate(zipFile);
         zipFile.close();
         return isAB;
-    }
-
-    public static boolean hasTouchscreen(Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_TOUCHSCREEN);
     }
 
     public static void addToClipboard(Context context, String label, String text,

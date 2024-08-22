@@ -40,9 +40,8 @@ class ABUpdateInstaller {
 
     private final UpdaterController mUpdaterController;
     private final Context mContext;
-    private String mDownloadId;
-
     private final UpdateEngine mUpdateEngine;
+    private String mDownloadId;
     private boolean mBound;
 
     private boolean mFinalizing;
@@ -103,6 +102,12 @@ class ABUpdateInstaller {
         }
     };
 
+    private ABUpdateInstaller(Context context, UpdaterController updaterController) {
+        mUpdaterController = updaterController;
+        mContext = context.getApplicationContext();
+        mUpdateEngine = new UpdateEngine();
+    }
+
     static synchronized boolean isInstallingUpdate(Context context) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         return pref.getString(ABUpdateInstaller.PREF_INSTALLING_AB_ID, null) != null ||
@@ -126,14 +131,8 @@ class ABUpdateInstaller {
         return TextUtils.equals(waitingId, downloadId);
     }
 
-    private ABUpdateInstaller(Context context, UpdaterController updaterController) {
-        mUpdaterController = updaterController;
-        mContext = context.getApplicationContext();
-        mUpdateEngine = new UpdateEngine();
-    }
-
     static synchronized ABUpdateInstaller getInstance(Context context,
-            UpdaterController updaterController) {
+                                                      UpdaterController updaterController) {
         if (sInstance == null) {
             sInstance = new ABUpdateInstaller(context, updaterController);
         }
@@ -167,7 +166,7 @@ class ABUpdateInstaller {
                  InputStreamReader isr = new InputStreamReader(is);
                  BufferedReader br = new BufferedReader(isr)) {
                 List<String> lines = new ArrayList<>();
-                for (String line; (line = br.readLine()) != null;) {
+                for (String line; (line = br.readLine()) != null; ) {
                     lines.add(line);
                 }
                 headerKeyValuePairs = new String[lines.size()];
@@ -193,8 +192,7 @@ class ABUpdateInstaller {
             }
         }
 
-        boolean enableABPerfMode = Utils.isABPerfModeForceEnabled(mContext) ? true
-                : PreferenceManager.getDefaultSharedPreferences(mContext)
+        boolean enableABPerfMode = Utils.isABPerfModeForceEnabled(mContext) || PreferenceManager.getDefaultSharedPreferences(mContext)
                 .getBoolean(Constants.PREF_AB_PERF_MODE, true);
         mUpdateEngine.setPerformanceMode(enableABPerfMode);
 
@@ -242,7 +240,6 @@ class ABUpdateInstaller {
     }
 
     private void installationDone(boolean needsReboot) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
         String id = needsReboot ? mDownloadId : null;
         PreferenceManager.getDefaultSharedPreferences(mContext).edit()
                 .putString(Constants.PREF_NEEDS_REBOOT_ID, id)

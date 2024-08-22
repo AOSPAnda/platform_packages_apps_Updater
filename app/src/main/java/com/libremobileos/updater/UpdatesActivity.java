@@ -12,50 +12,36 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.Configuration;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.icu.text.DateFormat;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.SystemProperties;
 import android.util.Log;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.Spinner;
-import android.widget.Switch;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.preference.PreferenceManager;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.appbar.CollapsingToolbarLayout;
+import com.google.android.material.snackbar.Snackbar;
 import com.libremobileos.updater.controller.UpdaterController;
 import com.libremobileos.updater.controller.UpdaterService;
 import com.libremobileos.updater.download.DownloadClient;
 import com.libremobileos.updater.misc.Constants;
-import com.libremobileos.updater.misc.StringGenerator;
 import com.libremobileos.updater.misc.Utils;
 import com.libremobileos.updater.model.UpdateInfo;
 import com.libremobileos.updater.ui.PreferenceSheet;
-import com.google.android.material.appbar.CollapsingToolbarLayout;
-import com.google.android.material.snackbar.Snackbar;
 
 import org.json.JSONException;
 
@@ -78,9 +64,25 @@ public class UpdatesActivity extends UpdatesListActivity {
     private RelativeLayout actionCheck;
     private SwipeRefreshLayout pullToRefresh;
     private int impatience = 0;
+    private final ServiceConnection mConnection = new ServiceConnection() {
 
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
+            mUpdaterService = binder.getService();
+            updateView.setUpdaterController(mUpdaterService.getUpdaterController());
+            getUpdatesList();
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            updateView.setUpdaterController(null);
+            mUpdaterService = null;
+            updateView.lateInit();
+        }
+    };
     private boolean mIsTV;
-
     private UpdateInfo mToBeExported = null;
     private final ActivityResultLauncher<Intent> mExportUpdate = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -174,25 +176,6 @@ public class UpdatesActivity extends UpdatesListActivity {
         onBackPressed();
         return true;
     }
-
-    private final ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                IBinder service) {
-            UpdaterService.LocalBinder binder = (UpdaterService.LocalBinder) service;
-            mUpdaterService = binder.getService();
-            updateView.setUpdaterController(mUpdaterService.getUpdaterController());
-            getUpdatesList();
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            updateView.setUpdaterController(null);
-            mUpdaterService = null;
-            updateView.lateInit();
-        }
-    };
 
     private void loadUpdatesList(File jsonFile, boolean manualRefresh)
             throws IOException, JSONException {

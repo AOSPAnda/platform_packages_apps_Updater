@@ -27,7 +27,6 @@ import androidx.preference.PreferenceManager;
 import com.libremobileos.updater.R;
 import com.libremobileos.updater.UpdaterReceiver;
 import com.libremobileos.updater.UpdatesActivity;
-import com.libremobileos.updater.misc.BuildInfoUtils;
 import com.libremobileos.updater.misc.Constants;
 import com.libremobileos.updater.misc.StringGenerator;
 import com.libremobileos.updater.misc.Utils;
@@ -40,23 +39,18 @@ import java.text.NumberFormat;
 
 public class UpdaterService extends Service {
 
-    private static final String TAG = "UpdaterService";
-
     public static final String ACTION_DOWNLOAD_CONTROL = "action_download_control";
     public static final String EXTRA_DOWNLOAD_ID = "extra_download_id";
     public static final String EXTRA_DOWNLOAD_CONTROL = "extra_download_control";
     public static final String ACTION_INSTALL_UPDATE = "action_install_update";
     public static final String ACTION_INSTALL_STOP = "action_install_stop";
-
     public static final String ACTION_INSTALL_SUSPEND = "action_install_suspend";
     public static final String ACTION_INSTALL_RESUME = "action_install_resume";
-
-    private static final String ONGOING_NOTIFICATION_CHANNEL =
-            "ongoing_notification_channel";
-
     public static final int DOWNLOAD_RESUME = 0;
     public static final int DOWNLOAD_PAUSE = 1;
-
+    private static final String TAG = "UpdaterService";
+    private static final String ONGOING_NOTIFICATION_CHANNEL =
+            "ongoing_notification_channel";
     private static final int NOTIFICATION_ID = 10;
 
     private final IBinder mBinder = new LocalBinder();
@@ -136,12 +130,6 @@ public class UpdaterService extends Service {
     public void onDestroy() {
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mBroadcastReceiver);
         super.onDestroy();
-    }
-
-    public class LocalBinder extends Binder {
-        public UpdaterService getService() {
-            return UpdaterService.this;
-        }
     }
 
     @Override
@@ -405,8 +393,7 @@ public class UpdaterService extends Service {
                 mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
 
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-                boolean deleteUpdate = Utils.isDeleteUpdatesForceEnabled(this) ? true
-                        : pref.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, true);
+                boolean deleteUpdate = Utils.isDeleteUpdatesForceEnabled(this) || pref.getBoolean(Constants.PREF_AUTO_DELETE_UPDATES, true);
                 if (deleteUpdate) {
                     mUpdaterController.deleteUpdate(update.getDownloadId());
                 }
@@ -534,5 +521,11 @@ public class UpdaterService extends Service {
         intent.setAction(ACTION_INSTALL_RESUME);
         return PendingIntent.getService(this, 0, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+    }
+
+    public class LocalBinder extends Binder {
+        public UpdaterService getService() {
+            return UpdaterService.this;
+        }
     }
 }
