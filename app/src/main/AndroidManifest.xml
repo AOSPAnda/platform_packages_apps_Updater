@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
      SPDX-FileCopyrightText: 2017-2022 The LineageOS Project
      SPDX-License-Identifier: Apache-2.0
 -->
@@ -32,8 +31,8 @@
         <activity
             android:name=".UpdatesActivity"
             android:excludeFromRecents="true"
-            android:label="@string/display_name"
             android:exported="true"
+            android:label="@string/display_name"
             android:launchMode="singleTop">
             <intent-filter android:priority="1">
                 <action android:name="android.settings.SYSTEM_UPDATE_SETTINGS" />
@@ -46,31 +45,38 @@
 
                 <category android:name="com.android.settings.SHORTCUT" />
                 <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <service
             android:name=".controller.UpdaterService"
             android:foregroundServiceType="specialUse">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="updater"/>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="updater" />
         </service>
         <service
             android:name=".ExportUpdateService"
             android:foregroundServiceType="specialUse">
-            <property android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="updater"/>
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="updater" />
         </service>
 
-        <receiver android:name=".UpdaterReceiver" android:exported="false">
+        <receiver
+            android:name=".UpdaterReceiver"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <receiver android:name=".UpdatesCheckReceiver" android:exported="true">
+        <receiver
+            android:name=".UpdatesCheckReceiver"
+            android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
     </application>
